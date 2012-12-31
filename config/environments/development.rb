@@ -34,4 +34,7 @@ Demo::Application.configure do
 
   # Expands the lines which load the assets
   config.assets.debug = true
+
+  ENV['FACEBOOK_APP_ID'] = "402650059814092";
+  ENV['FACEBOOK_SECRET'] = "e74dd3ad238392c0ed75f967f5ea49fb";  
 end
