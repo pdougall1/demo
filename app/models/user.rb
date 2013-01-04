@@ -25,6 +25,9 @@ class User < ActiveRecord::Base
 	def friends
 		facebook.fql_query("select uid, name, pic_square from user where (uid = me()) OR (uid IN (select uid2 from friend where uid1 = me()))")
 	end 
+
+	def stream_interactions
+	end	
 end
 
 

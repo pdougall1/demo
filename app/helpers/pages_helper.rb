@@ -9,7 +9,7 @@ module PagesHelper
 	end		
 
 	def nodes
-		current_user.friends
+		current_user.friends.unshift()
 	end
 
 	def json_object
