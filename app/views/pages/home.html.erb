@@ -7,12 +7,15 @@
   <% end %>
 </div>
 
-<%#= json_object.to_json.html_safe if current_user.present? %>
+<%#= count_instances_in(messages_cleaned_for_counting, :recipients) if current_user.present? %>
+<%#= current_user.some_thing["query3"] if current_user.present? %>
+<%#= count_instances_in(friend_streams, :actor_id) if current_user.present? %>
+<%#= facebook_object.to_json.html_safe if current_user.present? %>
 
 <div id="chart"></div>
 <script>
 
-var graph = <%= json_object.to_json.html_safe if current_user.present? %>
+var graph = <%= facebook_object.to_json.html_safe if current_user.present? %>
 
 var width = 1500,
     height = 1500;
@@ -21,12 +24,26 @@ var svg = d3.select("div#chart").append("svg")
     .attr("width", width)
     .attr("weight", height);
 
+var largest_affiliation = d3.max(graph.links, function(d) { return d.affiliation; })
+
+var link_distance = d3.scale.linear()
+		.domain([0, largest_affiliation])
+		.range([300, 100]);	
+
+var color_scale = d3.scale.linear()
+		.domain([0, largest_affiliation])
+		.range([d3.rgb(224,224,224), d3.rgb(160,160,160)]);	
+
+var opacity_scaled = d3.scale.linear()
+		.domain([0, largest_affiliation])
+		.range([0.1, 0.9]);
+
 var force = d3.layout.force()
     .nodes(graph.nodes)
     .links(graph.links)
     .size([width, height])
     .charge(-500)
-    .linkDistance(200)
+    .linkDistance(function(d) { return link_distance(d.affiliation)} )
     .linkStrength(0.5)
     .on("tick", tick)
     .start();
@@ -35,8 +52,9 @@ var link = svg.selectAll(".link")
    .data(graph.links)
  .enter().append("line")
    .attr("class", "link")
-   .attr("stroke", "white")
-   .attr("stroke-width", 2);
+   .attr("stroke", function(d) { return color_scale(d.affiliation)})
+   .attr("stroke-opacity", function(d) {return opacity_scaled(d.affiliation)} )
+   .attr("stroke-width", 3);
 
 var node = svg.selectAll(".node")
    .data(graph.nodes)

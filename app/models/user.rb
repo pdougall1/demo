@@ -22,11 +22,22 @@ class User < ActiveRecord::Base
 	  nil
 	end
 
-	def friends
-		facebook.fql_query("select uid, name, pic_square from user where (uid = me()) OR (uid IN (select uid2 from friend where uid1 = me()))")
-	end 
+	def facebook_object
+		facebook.fql_multiquery({
+			"query1" => "SELECT uid, name, pic_square FROM user WHERE (uid = me()) OR (uid IN (select uid2 FROM friend WHERE uid1 = me()))",
+		  "query2" => "SELECT originator, snippet, thread_id, subject, recipients FROM thread WHERE folder_id = 0",
+			"query3" => "SELECT message, actor_id, comments, likes FROM stream WHERE  filter_key IN (SELECT filter_key FROM stream_filter WHERE uid=me())"
+		})
+	end	
 
-	def stream_interactions
+	def friends
+		facebook_object["query1"]
+	end
+	def messages
+		facebook_object["query2"]
+	end
+	def stream
+		facebook_object["query3"]
 	end	
 end
 
