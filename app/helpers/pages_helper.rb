@@ -9,7 +9,7 @@ module PagesHelper
 		links_array = current_user.friends.reduce([]) do |links, friend|
 			x+=1
 			links_hash = {source: 0, target: x}
-			links_hash[:affiliation] = comment_count[friend['uid']] + actor_count[friend['uid']] + originator_count[friend['uid']] + recipients_count[friend['uid']]
+			links_hash[:affiliation] = (comment_count[friend['uid']] + actor_count[friend['uid']] + (originator_count[friend['uid']] * 2) + recipients_count[friend['uid']]) * 2
 			links << links_hash 
 		end		
 		links_array.shift
@@ -20,13 +20,14 @@ module PagesHelper
 		current_user.friends
 	end
 
-	def facebook_object
+	def processed_facebook_object
 		{ nodes: nodes,
 		  links: links
 		};
 	end
 
 	def stream_cleaned_for_counting
+		puts "starting st"
 		posts = current_user.stream
 		posts.reduce([]) do |new_array, post|
 			post_hash = {}

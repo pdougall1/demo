@@ -1,7 +1,8 @@
+
+
 <div id="user_nav">
   <% if current_user %>
-    Signed in as <strong><%= current_user.first_name %></strong>!
-    <%= link_to "Sign out", signout_path, id: "sign_out" %>
+    <%= link_to "#{current_user.first_name}: Sign out", signout_path, id: "sign_out" %>
   <% else %>
     <%= link_to "Sign in with Facebook", "/auth/facebook", id: "sign_in" %>
   <% end %>
@@ -10,113 +11,10 @@
 <%#= count_instances_in(messages_cleaned_for_counting, :recipients) if current_user.present? %>
 <%#= current_user.some_thing["query3"] if current_user.present? %>
 <%#= count_instances_in(friend_streams, :actor_id) if current_user.present? %>
-<%#= facebook_object.to_json.html_safe if current_user.present? %>
+<%#= processed_facebook_object.to_json.html_safe if current_user.present? %>
 
-<div id="chart"></div>
-<script>
+<%= render "pages/facebook_graph" %>
+<%#= render "pages/test_d3" %>
 
-var graph = <%= facebook_object.to_json.html_safe if current_user.present? %>
-
-var width = 1500,
-    height = 1500;
-
-var svg = d3.select("div#chart").append("svg")
-    .attr("width", width)
-    .attr("weight", height);
-
-var largest_affiliation = d3.max(graph.links, function(d) { return d.affiliation; })
-
-var link_distance = d3.scale.linear()
-		.domain([0, largest_affiliation])
-		.range([300, 100]);	
-
-var color_scale = d3.scale.linear()
-		.domain([0, largest_affiliation])
-		.range([d3.rgb(224,224,224), d3.rgb(160,160,160)]);	
-
-var opacity_scaled = d3.scale.linear()
-		.domain([0, largest_affiliation])
-		.range([0.1, 0.9]);
-
-var force = d3.layout.force()
-    .nodes(graph.nodes)
-    .links(graph.links)
-    .size([width, height])
-    .charge(-500)
-    .linkDistance(function(d) { return link_distance(d.affiliation)} )
-    .linkStrength(0.5)
-    .on("tick", tick)
-    .start();
-
-var link = svg.selectAll(".link")
-   .data(graph.links)
- .enter().append("line")
-   .attr("class", "link")
-   .attr("stroke", function(d) { return color_scale(d.affiliation)})
-   .attr("stroke-opacity", function(d) {return opacity_scaled(d.affiliation)} )
-   .attr("stroke-width", 3);
-
-var node = svg.selectAll(".node")
-   .data(graph.nodes)
- .enter().append("g")
-   .attr("class", "node")
-   .attr("r", 4.5)
-   .call(force.drag);
-
-var image = node.append("image")
-      .attr("xlink:href", function(d) {return d.pic_square;} )
-      .attr("x", -25)
-      .attr("y", -25)      
-      .attr("width", 50)
-      .attr("height", 50)
-      .style("opacity", 0);
-
-  image
-	    .transition()
-	    .duration(8000)
-	    .delay(5000)
-	    .attr("width", 50)
-      .attr("height", 50)
-	    .style("opacity", 1);
-
-  // image.on("mouseover", function() {
-  //     node.selectAll('image').transition()
-  //     .style("opacity", 0.25)   
-  //     .delay(0)
-  //     .duration(250)
-  //     d3.select(this).transition()
-  //       .style("opacity", 1)
-	 //      .attr("width", 100)
-	 //      .attr("height", 100)
-	 //      .attr("x", -12.5)
-	 //      .attr("y", -12.5)   	          
-  //       .delay(500)
-  //       .duration(250)        
-  //   });  	  
-    
-  // image.on("mouseout", function() {
-  //     svg.selectAll('image').transition()
-  //     .style("opacity", 0.75)
-  //     .attr("width", 50)
-  //     .attr("height", 50)
-  //     .attr("x", 12.5)
-  //     .attr("y", 12.5)         
-  //     .delay(0)
-  //     .duration(250)
-  //   });       
-
-
-function tick() {
-  link.attr("x1", function(d) { return d.source.x; })
-      .attr("y1", function(d) { return d.source.y; })
-      .attr("x2", function(d) { return d.target.x; })
-      .attr("y2", function(d) { return d.target.y; });
-
-
-	node.attr("transform", function(d) { 
-		return "translate(" + d.x + "," + d.y + ")"; 
-	});      
-}
-
-</script>
+<div id="test_d3"></div>
 
